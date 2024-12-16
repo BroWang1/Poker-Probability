@@ -6,3 +6,6 @@ for suit in suits:                  # same indentation as this line will give me
     for rank in ranks:              # same indentation as this line will give me it to me suit by suit
         card = rank + suit          # same indentation as this line will give me it to me card by card
         deck.append(card)
+
+
+#just checking
