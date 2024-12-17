@@ -1,52 +1,68 @@
-from Deck import deck # I wanted to test out how this import works from different .py files
+from Deck import deck, card2rank,card2suit          #i wanted to test out how this import works from different .py files
 import random
 import math
 
-random.shuffle(deck)
-# this is so I can do the probabilities
-card_values = {
-    '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
-    'J': 11, 'Q': 12, 'K': 13, 'A': 14
-}
-
+                                                    #to get initial info like players and hand
 num_players = input("How many players are playing? (Please give numerical values)" + "\n")
-user_input = input("Enter Hand(EX.JH,AC - Jack of hearts, Ace of Clubs):"+ "\n")
-
-user_hand = user_input.replace(" ", "").split(",")# cleaning/normalizing the answers
+otherp_cards = (int(num_players)-1)*2                                # every player has 2 cards
+user_input = input("Enter Hand(EX.QH,5C - Queen of Hearts, 5 of Clubs):" + "\n").upper()
+user_hand = user_input.replace(" ", "").split(",")      # cleaning/normalizing the answers
 print(user_hand)
 
-def card2value(card):
-    rank = card[:-1]  # Get the rank (e.g., "J" from "JH")
-    return card_values[rank]
-
-for card in user_hand: # this is to remove the hand from the deck
+for card in user_hand:                                              # this is to remove the hand from the deck
     if card in deck:
         deck.remove(card)
-    #print(len(deck))
+print(len(deck))
 
-other_cards = (int(num_players)-1)*2 # every player has 2 cards
-for cr in range(other_cards):   # CR=cards removed; Now it is time to randomly remove the number of cards in the other players hand
-    randomly_rem = random.choice(deck)
-    deck.remove(randomly_rem)
-#print(len(deck))
+suit_hand = [card2suit(card) for card in user_hand]
+print(suit_hand)
+rank_hand = [card2rank(card) for card in user_hand]
+print(rank_hand)
 
-value_hand = [card2value(card) for card in user_hand]
-#print(value_hand)
-#value_community_cards = [card2value(card) for card in input_community_cards]
-def high_card(value_hand,other_cards):
-    all = math.comb(50,other_cards)# the denominator
-    higher = 14 - max(value_hand)
-    if higher == 0:
-        if value_hand == ['14', '14']:
-            amt_higher = 2
-        elif 14 in value_hand:
-            amt_higher = 3
-    else:
-        amt_higher = higher * 4
-    high_card = math.comb(50-amt_higher,other_cards)/all
-    return high_card
-print(high_card(value_hand,other_cards,))
-print(f'The chances the opponent has a higher card than you:{1-high_card(value_hand,other_cards)}')
+community_cards = []
+suit_community_cards = []
+rank_community_cards = []
+
+unseen_cards = len(deck) - len(community_cards)
+total_combo = math.comb(unseen_cards, otherp_cards)  # the denominator
+num_cardHigher = 14 - max(rank_hand)
+
+amt_higher = 0
+if num_cardHigher == 0:  # if there are aces
+    if rank_hand == ['14', '14']:  # if there are pocket aces need to change this
+        amt_higher = 2
+    elif rank_hand.count(14) == 1:  # if there is a ace in hand
+        amt_higher = 3
+else:
+    amt_higher = num_cardHigher * 4 #4 suits per higher card
+
+rank_board = rank_hand + rank_community_cards
+suit_board = suit_hand + suit_community_cards
+
+lowerC_deck = (len(deck) - amt_higher)
+def high_card(rank_hand, community_cards, rank_community_cards):
+    if not community_cards:     #preflop
+        high_card = math.comb((lowerC_deck), otherp_cards) / total_combo
+        return high_card
+    # comb1 = math.comb(lowerC_deck, otherp_cards) # combo number of cards lower to the number of other players cards
+    # comb2 = math.comb(lowerC_deck - otherp_cards, 5 - len(community_cards))
+
+
+    elif community_cards:       #postflop
+        high_rankin_hand = max(rank_hand) # highest card in hand
+        num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+        num_lowerCC = len(rank_community_cards) - num_higherCC
+        if any(rank_board.count(card) > 1 for card in rank_board):                    #using a comprehension would make it better
+            print('0% - Better Hand Available')
+        else:
+            high_card = math.comb((len(deck) - num_lowerCC - amt_higher + num_higherCC), otherp_cards - num_higherCC) / total_combo
+            return high_card
+
+
+
+print(high_card(rank_hand,community_cards, rank_community_cards))
+
+
 # def evaluate_hand(value_hand, value_community_cards):
 #
 #         cards = value_hand + value_community_cards # This allows them to be seen as a group
@@ -81,6 +97,14 @@ print(f'The chances the opponent has a higher card than you:{1-high_card(value_h
     # roy_flush =
     #
     # total_prob = high_card + pair + two_pair + trips + quads + straight + flush + full_house + str_flush + roy_flush
+input_community_cards = input("What are the first 3 community cards?(EX.2H,8C,7D)" + "\n").upper()
+community_cards = input_community_cards.replace(" ", "").split(",")
+for knownC in range(len(community_cards)):                                       # known cards in the community
+     randomly_rem = random.choice(deck)
+     deck.remove(randomly_rem)
+print(len(deck))
 
-input_community_cards = input("What are the first 3 community cards?(EX.2H,8C,7D)")
-community_cards = user_input.replace(" ", "").split(",")# cleaning/normalizing the answers
+
+rank_community_cards = [card2rank(card) for card in community_cards]# cleaning/normalizing the answers
+postflop_high_card = high_card(rank_hand,community_cards, rank_community_cards)
+print(postflop_high_card)
