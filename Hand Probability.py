@@ -67,48 +67,36 @@ def high_card(rank_hand, suit_community_cards, rank_community_cards):
     high_card = possible_lowerC / total_combo
     return high_card
 
-print(high_card(rank_hand,suit_community_cards, rank_community_cards))
-
-
-# def evaluate_hand(value_hand, value_community_cards):
-#
-#         cards = value_hand + value_community_cards # This allows them to be seen as a group
-#         return {
-#             "high_card": high_card(value_hand,other_cards),
+#def pair(rank_hand, suit_community_cards, rank_community_cards):
+#def two_pair(rank_hand, suit_community_cards, rank_community_cards):                 # give them the length two win
+#def trips(rank_hand, suit_community_cards, rank_community_cards):
+#def quads(rank_hand, suit_community_cards, rank_community_cards):
+#def straight(rank_hand, suit_community_cards, rank_community_cards):                 # give them the length two win
+#def flush(rank_hand, suit_community_cards, rank_community_cards):                    # give them the length two win
+#def full_house(rank_hand, suit_community_cards, rank_community_cards):               # give them the length two win
+#def str_flush(rank_hand, suit_community_cards, rank_community_cards):                # give them the length two win
+#def roy_flush(rank_hand, suit_community_cards, rank_community_cards):                # give them the length two win
+def evaluate_hand(rank_hand,suit_community_cards, rank_community_cards):
+    return {
+             "high_card": high_card(rank_hand,suit_community_cards, rank_community_cards),
 #             "pairs": pairs(cards),
+#             "two_pairs": two_pairs(cards),
 #             "three_of_a_kind": trips(cards),
 #             "straight": straight(cards),
 #             "flush": flush(cards),
 #             "full_house": full_house(cards),
 #             "four_of_a_kind": quads(cards),
 #             "straight_flush": str_flush(cards),
-#         }
-#
+         }
 
-
-
-
-
-
-
-
-
-    # pair =
-    # two_pair =
-    # trips =
-    # quads =
-    # straight =
-    # flush =
-    # full_house =
-    # str_flush =
-    # roy_flush =
-    #
     # total_prob = high_card + pair + two_pair + trips + quads + straight + flush + full_house + str_flush + roy_flush
 
-def update_community_cards(input_cards, community_cards, deck):
+preflop = evaluate_hand(rank_hand,suit_community_cards, rank_community_cards)
+print(preflop)
+def update_community_cards(input_cards, community_cards, deck):     #this grabs the new cards and normalizes them and put the in the community cards
     new_cards = input_cards.replace(" ", "").split(",")
     community_cards += new_cards
-    for card in new_cards:
+    for card in new_cards:      # this is to change the length of the board and remove the known cars
         if card in deck:
             deck.remove(card)
     return community_cards, deck
