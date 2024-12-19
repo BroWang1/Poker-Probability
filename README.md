@@ -4,7 +4,7 @@ Overview
 This program is a rudimentary tool that estimates the probability of winning a poker game based on the combinations of cards lower than your hand. While it does not take into account all possible scenarios, it provides a rough estimation to help you gauge the strength of your hand during gameplay.
 
 Current Functionality
-Focus on Lower Cards: The program calculates the chance of winning by only considering combinations that are (lower than your hand/total unseen cards).
+Focus on Lower Cards: The program calculates the chance of winning by only considering combinations that are (lower than your hand and unseen/total unseen cards).
 Basic Estimator: This approach allows for a quick estimation of your hand's strength without simulating every possible hand.
 
 Limitations
