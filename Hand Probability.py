@@ -1,5 +1,7 @@
-from Deck import deck, card2rank,card2suit          # i wanted to test out how this import works from different .py files
+from Deck import deck, card2rank,card2suit,card_rank,card_suit          # i wanted to test out how this import works from different .py files
 import math
+import sys
+
 
 community_cards = []
 suit_community_cards = []
@@ -23,7 +25,6 @@ rank_hand = [card2rank(card) for card in user_hand]
 print(rank_hand)
 
 unseen_cards = len(deck) - len(community_cards)
-total_combo = math.comb(unseen_cards, otherp_cards)  # the denominator
 num_cardHigher = 14 - max(rank_hand)
 
 amt_higher = 0
@@ -38,6 +39,7 @@ else:
 
 lowerC_deck = len(deck) - amt_higher
 def high_card(rank_hand, suit_community_cards, rank_community_cards):
+    totalunseen_combo = math.comb(unseen_cards, otherp_cards)  # the denominator
     rank_board = rank_hand + rank_community_cards
     suit_board = suit_hand + suit_community_cards
     if any(rank_board.count(rank) >= 2 for rank in set(rank_board)):      # Checking for pairs, trips, quads
@@ -57,9 +59,9 @@ def high_card(rank_hand, suit_community_cards, rank_community_cards):
 
     high_rankin_hand = max(rank_hand)  # highest card in hand
     num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-    num_lowerCC = len(rank_community_cards) - num_higherCC
+    num_lowerCC = sum(1 for rank in rank_community_cards if rank < high_rankin_hand)
     possible_lowerC = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-    high_card = possible_lowerC / total_combo
+    high_card = possible_lowerC / totalunseen_combo
     return high_card
 def pair(rank_hand, suit_community_cards, rank_community_cards):
     rank_board = rank_hand + rank_community_cards
@@ -78,95 +80,125 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
             for i in range(len(rank_board) - 4)
             ):
             return '0% - Better Hand Available'
-        #theres a couple of things that I have to do one to check if there is a pair and it has to grab one from the hand and one from the cc and if there is two say that there is a better possiblity
+#Hasnt considered Community Cards
     pairs = 0
     for user_card in rank_hand:
         for cc_card in rank_community_cards:
             if user_card == cc_card:
                 pairs += 1
-    if pairs == 2:
-        return '0% - Better Hand Available'
-    high_rankin_hand = max(rank_hand)  # highest card in hand
-    num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-    num_lowerCC = len(rank_community_cards) - num_higherCC
-    lowerpairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-    pair = lowerpairs / total_combo
-    return pair
+    if pairs == 1:
+        matches = [user_card for user_card in rank_hand if user_card in rank_community_cards]
+        if matches:
+            matching_card = matches[0]
+            num_higherCC = sum(1 for rank in rank_community_cards if rank > matching_card)
+            num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
+            higherpairs = (12 - matching_card) * 4 - num_higherCC
+            lowerpairs_total = 0
+            totalunseen_combo_total = 0
+            print(f"Initial deck size: {len(deck)}")
+            for oc in range(otherp_cards):
+                denom_pair = len(deck) - oc
+                if denom_pair > 0:
+                    lowerpairs_even = (denom_pair - higherpairs) / denom_pair if denom_pair % 2 == 0 else 1
+                    lowerpairs_odd = (3 / denom_pair) if denom_pair % 2 != 0 else 1
+                    lowerpairs_total = lowerpairs_even * lowerpairs_odd
+                    lowerpairs_total *= lowerpairs_total
+                    # print(f"Iteration {oc}:")
+                    # print(f"  Lower Pairs Even: ({denom_pair} - {higherpairs})/({denom_pair})")
+                    # print(f"  Lower Pairs Even: {lowerpairs_even}")
+                    # print(f"  Lower Pairs Odd: {lowerpairs_odd}")
+                    # print(f"  Lower Pairs Odd: (3 / {denom_pair})")
+                    # print(f"  Lower Pairs Total: {lowerpairs_total}")
 
-def two_pair(rank_hand, suit_community_cards, rank_community_cards):
-    rank_board = rank_hand + rank_community_cards
-    suit_board = suit_hand + suit_community_cards
-    if any(rank_board.count(rank) >= 3 for rank in set(rank_board)):  # Checking for trips, quads
-        return '0% - Better Hand Available'
-    elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
-        return '0% - Better Hand Available'
-    elif len(rank_board) >= 5:  # Checking for Straight
-        sort = sorted(rank_board)
-        if any(
-                sort[i + 1] == sort[i] + 1 and
-                sort[i + 2] == sort[i] + 2 and
-                sort[i + 3] == sort[i] + 3 and
-                sort[i + 4] == sort[i] + 4
-                for i in range(len(rank_board) - 4)
-        ):
-            return '0% - Better Hand Available'
-    pairs = 0
-    for user_card in rank_hand:
-        for cc_card in rank_community_cards:
-            if user_card == cc_card:
-                pairs += 1
-    if pairs == 2:
-        high_rankin_hand = max(rank_hand)  # highest card in hand
-        num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-        num_lowerCC = len(rank_community_cards) - num_higherCC
-        lower2pairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-        two_pair = lower2pairs / total_combo
-        return two_pair
+                    totalunseen_combo_even = denom_pair / denom_pair if denom_pair % 2 == 0 else 1
+                    totalunseen_combo_odd = (denom_pair / denom_pair) * (3 / denom_pair) if denom_pair % 2 != 0 else 1
+                    totalunseen_combo_total = totalunseen_combo_even * totalunseen_combo_odd
+                    totalunseen_combo_total *= totalunseen_combo_total
 
-def trips(rank_hand, suit_community_cards, rank_community_cards):
-    rank_board = rank_hand + rank_community_cards
-    suit_board = suit_hand + suit_community_cards
-    if any(rank_board.count(rank) >= 4 for rank in set(rank_board)):  # Checking for quads
+                    #print(f"  Total Unseen Combo Total: {totalunseen_combo_total}")
+            if totalunseen_combo_total > 0:
+                pair = lowerpairs_total / totalunseen_combo_total
+                return pair
+    elif pairs == 2:
         return '0% - Better Hand Available'
-    elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
-        return '0% - Better Hand Available'
-    elif len(rank_board) >= 5:  # Checking for Straight
-        sort = sorted(rank_board)
-        if any(
-                sort[i + 1] == sort[i] + 1 and
-                sort[i + 2] == sort[i] + 2 and
-                sort[i + 3] == sort[i] + 3 and
-                sort[i + 4] == sort[i] + 4
-                for i in range(len(rank_board) - 4)
-        ):
-            return '0% - Better Hand Available'
-        high_rankin_hand = max(rank_hand)  # highest card in hand
-        num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-        num_lowerCC = len(rank_community_cards) - num_higherCC
-        lower_trips = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-        trips = lower_trips / total_combo
-        return trips
 
-def quads(rank_hand, suit_community_cards, rank_community_cards):
-    rank_board = rank_hand + rank_community_cards
-    suit_board = suit_hand + suit_community_cards
-    if any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for any straight flushes
-        if len(rank_board) >= 5:
-            sort = sorted(rank_board)
-            if any(
-                    sort[i + 1] == sort[i] + 1 and
-                    sort[i + 2] == sort[i] + 2 and
-                    sort[i + 3] == sort[i] + 3 and
-                    sort[i + 4] == sort[i] + 4
-                    for i in range(len(rank_board) - 4)
-            ):
-                return '0% - Better Hand Available'
-    high_rankin_hand = max(rank_hand)  # highest card in hand
-    num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-    num_lowerCC = len(rank_community_cards) - num_higherCC
-    lower_quads = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-    quads = lower_quads / total_combo
-    return quads
+# def two_pair(rank_hand, suit_community_cards, rank_community_cards):
+#     rank_board = rank_hand + rank_community_cards
+#     suit_board = suit_hand + suit_community_cards
+#     if any(rank_board.count(rank) >= 3 for rank in set(rank_board)):  # Checking for trips, quads
+#         return '0% - Better Hand Available'
+#     elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
+#         return '0% - Better Hand Available'
+#     elif len(rank_board) >= 5:  # Checking for Straight
+#         sort = sorted(rank_board)
+#         if any(
+#                 sort[i + 1] == sort[i] + 1 and
+#                 sort[i + 2] == sort[i] + 2 and
+#                 sort[i + 3] == sort[i] + 3 and
+#                 sort[i + 4] == sort[i] + 4
+#                 for i in range(len(rank_board) - 4)
+#         ):
+#             return '0% - Better Hand Available'
+#     pairs = 0
+#     for user_card in rank_hand:
+#         for cc_card in rank_community_cards:
+#             if user_card == cc_card:
+#                 pairs += 1
+#     if pairs == 2:
+#         high_rankin_hand = max(rank_hand)  # highest card in hand
+#         num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+#         num_lowerCC = len(rank_community_cards) - num_higherCC
+#         lower2pairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
+#         two_pair = lower2pairs / total_combo
+#         return two_pair
+#
+# def trips(rank_hand, suit_community_cards, rank_community_cards):
+#     rank_board = rank_hand + rank_community_cards
+#     suit_board = suit_hand + suit_community_cards
+#     if any(rank_board.count(rank) >= 4 for rank in set(rank_board)):  # Checking for quads
+#         return '0% - Better Hand Available'
+#     elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
+#         return '0% - Better Hand Available'
+#     elif len(rank_board) >= 5:  # Checking for Straight
+#         sort = sorted(rank_board)
+#         if any(
+#                 sort[i + 1] == sort[i] + 1 and
+#                 sort[i + 2] == sort[i] + 2 and
+#                 sort[i + 3] == sort[i] + 3 and
+#                 sort[i + 4] == sort[i] + 4
+#                 for i in range(len(rank_board) - 4)
+#         ):
+#             return '0% - Better Hand Available'
+#
+#     if any(rank_board.count(rank) == 3 for rank in set(rank_board)):
+#         high_rankin_hand = max(rank_hand)  # highest card in hand
+#         num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+#         num_lowerCC = len(rank_community_cards) - num_higherCC
+#         lower_trips = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
+#         trips = lower_trips / total_combo
+#         return trips
+#
+# def quads(rank_hand, suit_community_cards, rank_community_cards):
+#     rank_board = rank_hand + rank_community_cards
+#     suit_board = suit_hand + suit_community_cards
+#     if any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for any straight flushes
+#         if len(rank_board) >= 5:
+#             sort = sorted(rank_board)
+#             if any(
+#                     sort[i + 1] == sort[i] + 1 and
+#                     sort[i + 2] == sort[i] + 2 and
+#                     sort[i + 3] == sort[i] + 3 and
+#                     sort[i + 4] == sort[i] + 4
+#                     for i in range(len(rank_board) - 4)
+#             ):
+#                 return '0% - Better Hand Available'
+#     if any(rank_board.count(card) == 4 for card in rank_board):
+#         high_rankin_hand = max(rank_hand)  # highest card in hand
+#         num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+#         num_lowerCC = len(rank_community_cards) - num_higherCC
+#         lower_quads = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
+#         quads = lower_quads / total_combo
+#         return quads
 
 #def straight(rank_hand, suit_community_cards, rank_community_cards):                 # give them the length two win
 #def flush(rank_hand, suit_community_cards, rank_community_cards):                    # give them the length two win
@@ -177,12 +209,12 @@ def evaluate_hand(rank_hand,suit_community_cards, rank_community_cards):
     return {
              "high_card": high_card(rank_hand,suit_community_cards, rank_community_cards),
              "pairs": pair(rank_hand, suit_community_cards, rank_community_cards),
-             "two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
-             "three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
+             #"two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
+             #"three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
 #             "straight": straight(cards),
 #             "flush": flush(cards),
 #             "full_house": full_house(cards),
-             "four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
+             #"four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
 #             "straight_flush": str_flush(cards),
          }
 
@@ -200,7 +232,7 @@ def update_community_cards(input_cards, community_cards, deck):     #this grabs 
 
 input_community_cards = input("Enter the first 3 community cards (e.g., 9H, 8C, 7D): " + "\n").upper()
 community_cards, deck = update_community_cards(input_community_cards, community_cards, deck)
-
+print(len(deck))
 suit_community_cards = [card2suit(card) for card in community_cards]
 rank_community_cards = [card2rank(card) for card in community_cards]
 
