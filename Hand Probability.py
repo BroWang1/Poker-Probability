@@ -166,15 +166,16 @@ def trips(rank_hand, suit_community_cards, rank_community_cards):
                 for i in range(len(rank_board) - 4)
         ):
             return '0% - Better Hand Available'
+    rank_counts = [rank_board.count(rank) for rank in set(rank_board)]
+    if 3 in rank_counts and 2 in rank_counts:
+        return '0% - Better Hand Available'
 
     if any(rank_board.count(rank) == 3 for rank in set(rank_board)):
-        num_higherCC = sum(1 for rank in rank_community_cards if rank >= matching_card)
-        num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
-        higher = (13 - rank_hand[0])
-        higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC) + (3 * num_higherCC)
+        num_higherCC = sum(1 for rank in rank_community_cards if rank >= rank_board)
+        num_lowerCC = sum(1 for rank in rank_community_cards if rank < rank_board)
+        higherpairs = num_higherCC * 3
         print(higherpairs)
-        pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (
-                    int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
+        trips = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
         return trips
 #
 # def quads(rank_hand, suit_community_cards, rank_community_cards):
@@ -210,11 +211,11 @@ def evaluate_hand(rank_hand,suit_community_cards, rank_community_cards):
              "pairs": pair(rank_hand, suit_community_cards, rank_community_cards),
              "two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
              "three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
-#             "straight": straight(cards),
-#             "flush": flush(cards),
-#             "full_house": full_house(cards),
-             #"four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
-#             "straight_flush": str_flush(cards),
+             "straight": straight(rank_hand, suit_community_cards, rank_community_cards),
+             "flush": flush(rank_hand, suit_community_cards, rank_community_cards),
+             "full_house": full_house(rank_hand, suit_community_cards, rank_community_cards),
+             "four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
+             "straight_flush": str_flush(rank_hand, suit_community_cards, rank_community_cards),
          }
 
     # total_prob = high_card + pair + two_pair + trips + quads + straight + flush + full_house + str_flush + roy_flush
