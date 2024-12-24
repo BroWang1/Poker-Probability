@@ -35,10 +35,8 @@ if num_cardHigher == 0:  # if there are aces
         amt_higher = 3
 else:
     amt_higher = num_cardHigher * 4 # 4 suits per higher card
-
-
-lowerC_deck = len(deck) - amt_higher
 def high_card(rank_hand, suit_community_cards, rank_community_cards):
+    lowerC_deck = len(deck) - amt_higher
     totalunseen_combo = math.comb(unseen_cards, otherp_cards)  # the denominator
     rank_board = rank_hand + rank_community_cards
     suit_board = suit_hand + suit_community_cards
@@ -80,7 +78,6 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
             for i in range(len(rank_board) - 4)
             ):
             return '0% - Better Hand Available'
-#Hasnt considered Aces & if pocket pairs it needs to deal with community cards
     if rank_hand[0] == rank_hand[1]:
         print(rank_hand[0])
         higher_pockets = (13 - rank_hand[0]) * math.comb(4, 2)
@@ -101,33 +98,18 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
             matching_card = matches[0]
             num_higherCC = sum(1 for rank in rank_community_cards if rank > matching_card)
             num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
-            higherpairs = (12 - matching_card) * 4 - num_higherCC
-            lowerpairs_total = 0
-            totalunseen_combo_total = 0
-            print(f"Initial deck size: {len(deck)}")
-            for oc in range(otherp_cards):
-                denom_pair = len(deck) - oc
-                if denom_pair > 0:
-                    lowerpairs_even = (denom_pair - higherpairs + num_lowerCC) / denom_pair if denom_pair % 2 == 0 else 1
-                    lowerpairs_odd = (3 / denom_pair) if denom_pair % 2 != 0 else 1
-                    lowerpairs_total = lowerpairs_even * lowerpairs_odd
-                    lowerpairs_total *= lowerpairs_total
-                    # # print(f"Iteration {oc}:")
-                    # # print(f"  Lower Pairs Even: ({denom_pair} - {higherpairs})/({denom_pair})")
-                    # # print(f"  Lower Pairs Even: {lowerpairs_even}")
-                    # # print(f"  Lower Pairs Odd: {lowerpairs_odd}")
-                    # # print(f"  Lower Pairs Odd: (3 / {denom_pair})")
-                    # # print(f"  Lower Pairs Total: {lowerpairs_total}")
-                    #
-                    # totalunseen_combo_even = denom_pair / denom_pair if denom_pair % 2 == 0 else 1
-                    # totalunseen_combo_odd = (denom_pair / denom_pair) * (3 / denom_pair) if denom_pair % 2 != 0 else 1
-                    # totalunseen_combo_total = totalunseen_combo_even * totalunseen_combo_odd
-                    # totalunseen_combo_total *= totalunseen_combo_total
-                    totalunseen_combo_total = math.comb(len)
-
-                    #print(f"  Total Unseen Combo Total: {totalunseen_combo_total}")
-            if totalunseen_combo_total > 0:
-                pair = lowerpairs_total / totalunseen_combo_total
+            higher = (13 - rank_hand[0])
+            if higher == 0:
+                higher = 1
+                higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC) + (3 * num_higherCC)
+                print(higherpairs)
+                pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (
+                            int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
+                return pair
+            if higher > 0:
+                higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC)  + (3 * num_higherCC)
+                print(higherpairs)
+                pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (int(num_players) - 1)) # there is a 3 because the difference between C(4,2) and C(3,2) is 3
                 return pair
     elif pairs == 2:
         return '0% - Better Hand Available'
