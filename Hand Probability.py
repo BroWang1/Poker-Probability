@@ -56,7 +56,7 @@ def high_card(rank_hand, suit_community_cards, rank_community_cards):
             return '0% - Better Hand Available'
 
     high_rankin_hand = max(rank_hand)  # highest card in hand
-    num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+    num_higherCC = sum(1 for rank in rank_community_cards if rank >= high_rankin_hand)
     num_lowerCC = sum(1 for rank in rank_community_cards if rank < high_rankin_hand)
     possible_lowerC = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
     high_card = possible_lowerC / totalunseen_combo
@@ -96,15 +96,14 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
         matches = [user_card for user_card in rank_hand if user_card in rank_community_cards]
         if matches:
             matching_card = matches[0]
-            num_higherCC = sum(1 for rank in rank_community_cards if rank > matching_card)
+            num_higherCC = sum(1 for rank in rank_community_cards if rank >= matching_card)
             num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
             higher = (13 - rank_hand[0])
             if higher == 0:
                 higher = 1
                 higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC) + (3 * num_higherCC)
                 print(higherpairs)
-                pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (
-                            int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
+                pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
                 return pair
             if higher > 0:
                 higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC)  + (3 * num_higherCC)
@@ -131,44 +130,52 @@ def two_pair(rank_hand, suit_community_cards, rank_community_cards):
                 for i in range(len(rank_board) - 4)
         ):
             return '0% - Better Hand Available'
-    pairs = 0
+    rank_board = rank_hand + rank_community_cards
+    #for pairs in rank_board:
+        ##this is for when you have a pair in hand and the board gets a flop
+
+    pairs = 0 # this is for if both of your cards get a pair from the board
     for user_card in rank_hand:
         for cc_card in rank_community_cards:
             if user_card == cc_card:
                 pairs += 1
     if pairs == 2:
-        high_rankin_hand = max(rank_hand)  # highest card in hand
-        num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-        num_lowerCC = len(rank_community_cards) - num_higherCC
-        lower2pairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-        two_pair = lower2pairs / total_combo
-        return two_pair
+        matches = [user_card for user_card in rank_hand if user_card in rank_community_cards]
+        if matches:
+            matching_card = max(matches)
+            num_higherCC = sum(1 for rank in rank_community_cards if rank >= matching_card)
+            num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
+            highertwopairs = (num_higherCC * 3) * (num_lowerCC * 3)
+            two_pair = ((1 - (highertwopairs / math.comb(len(deck), 2))) ** (int(num_players) - 1))
+            return two_pair
 
-# def trips(rank_hand, suit_community_cards, rank_community_cards):
-#     rank_board = rank_hand + rank_community_cards
-#     suit_board = suit_hand + suit_community_cards
-#     if any(rank_board.count(rank) >= 4 for rank in set(rank_board)):  # Checking for quads
-#         return '0% - Better Hand Available'
-#     elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
-#         return '0% - Better Hand Available'
-#     elif len(rank_board) >= 5:  # Checking for Straight
-#         sort = sorted(rank_board)
-#         if any(
-#                 sort[i + 1] == sort[i] + 1 and
-#                 sort[i + 2] == sort[i] + 2 and
-#                 sort[i + 3] == sort[i] + 3 and
-#                 sort[i + 4] == sort[i] + 4
-#                 for i in range(len(rank_board) - 4)
-#         ):
-#             return '0% - Better Hand Available'
-#
-#     if any(rank_board.count(rank) == 3 for rank in set(rank_board)):
-#         high_rankin_hand = max(rank_hand)  # highest card in hand
-#         num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-#         num_lowerCC = len(rank_community_cards) - num_higherCC
-#         lower_trips = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-#         trips = lower_trips / total_combo
-#         return trips
+def trips(rank_hand, suit_community_cards, rank_community_cards):
+    rank_board = rank_hand + rank_community_cards
+    suit_board = suit_hand + suit_community_cards
+    if any(rank_board.count(rank) >= 4 for rank in set(rank_board)):  # Checking for quads
+        return '0% - Better Hand Available'
+    elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
+        return '0% - Better Hand Available'
+    elif len(rank_board) >= 5:  # Checking for Straight
+        sort = sorted(rank_board)
+        if any(
+                sort[i + 1] == sort[i] + 1 and
+                sort[i + 2] == sort[i] + 2 and
+                sort[i + 3] == sort[i] + 3 and
+                sort[i + 4] == sort[i] + 4
+                for i in range(len(rank_board) - 4)
+        ):
+            return '0% - Better Hand Available'
+
+    if any(rank_board.count(rank) == 3 for rank in set(rank_board)):
+        num_higherCC = sum(1 for rank in rank_community_cards if rank >= matching_card)
+        num_lowerCC = sum(1 for rank in rank_community_cards if rank < matching_card)
+        higher = (13 - rank_hand[0])
+        higherpairs = higher * math.comb(4, 2) - (3 * num_lowerCC) + (3 * num_higherCC)
+        print(higherpairs)
+        pair = ((1 - (higherpairs / math.comb(len(deck), 2))) ** (
+                    int(num_players) - 1))  # there is a 3 because the difference between C(4,2) and C(3,2) is 3
+        return trips
 #
 # def quads(rank_hand, suit_community_cards, rank_community_cards):
 #     rank_board = rank_hand + rank_community_cards
@@ -201,8 +208,8 @@ def evaluate_hand(rank_hand,suit_community_cards, rank_community_cards):
     return {
              "high_card": high_card(rank_hand,suit_community_cards, rank_community_cards),
              "pairs": pair(rank_hand, suit_community_cards, rank_community_cards),
-             #"two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
-             #"three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
+             "two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
+             "three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
 #             "straight": straight(cards),
 #             "flush": flush(cards),
 #             "full_house": full_house(cards),
