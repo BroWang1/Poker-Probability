@@ -25,13 +25,13 @@ rank_hand = [card2rank(card) for card in user_hand]
 print(rank_hand)
 
 unseen_cards = len(deck) - len(community_cards)
-num_cardHigher = 14 - max(rank_hand)
+num_cardHigher = 13 - max(rank_hand)
 
 amt_higher = 0
 if num_cardHigher == 0:  # if there are aces
-    if rank_hand == ['14', '14']:  # if there are pocket aces need to change this
+    if rank_hand == ['13', '13']:  # if there are pocket aces need to change this
         amt_higher = 2
-    elif rank_hand.count(14) == 1:  # if there is a ace in hand
+    elif rank_hand.count(13) == 1:  # if there is a ace in hand
         amt_higher = 3
 else:
     amt_higher = num_cardHigher * 4 # 4 suits per higher card
@@ -80,7 +80,16 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
             for i in range(len(rank_board) - 4)
             ):
             return '0% - Better Hand Available'
-#Hasnt considered Community Cards
+#Hasnt considered Aces & if pocket pairs it needs to deal with community cards
+    if rank_hand[0] == rank_hand[1]:
+        print(rank_hand[0])
+        higher_pockets = (13 - rank_hand[0]) * math.comb(4, 2)
+        print(higher_pockets)
+        lowerpair = ((1 - (higher_pockets / math.comb(len(deck), 2))) ** (int(num_players) - 1))
+        if lowerpair == 0:
+            lowerpair = 1
+        return lowerpair
+
     pairs = 0
     for user_card in rank_hand:
         for cc_card in rank_community_cards:
@@ -99,21 +108,22 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
             for oc in range(otherp_cards):
                 denom_pair = len(deck) - oc
                 if denom_pair > 0:
-                    lowerpairs_even = (denom_pair - higherpairs) / denom_pair if denom_pair % 2 == 0 else 1
+                    lowerpairs_even = (denom_pair - higherpairs + num_lowerCC) / denom_pair if denom_pair % 2 == 0 else 1
                     lowerpairs_odd = (3 / denom_pair) if denom_pair % 2 != 0 else 1
                     lowerpairs_total = lowerpairs_even * lowerpairs_odd
                     lowerpairs_total *= lowerpairs_total
-                    # print(f"Iteration {oc}:")
-                    # print(f"  Lower Pairs Even: ({denom_pair} - {higherpairs})/({denom_pair})")
-                    # print(f"  Lower Pairs Even: {lowerpairs_even}")
-                    # print(f"  Lower Pairs Odd: {lowerpairs_odd}")
-                    # print(f"  Lower Pairs Odd: (3 / {denom_pair})")
-                    # print(f"  Lower Pairs Total: {lowerpairs_total}")
-
-                    totalunseen_combo_even = denom_pair / denom_pair if denom_pair % 2 == 0 else 1
-                    totalunseen_combo_odd = (denom_pair / denom_pair) * (3 / denom_pair) if denom_pair % 2 != 0 else 1
-                    totalunseen_combo_total = totalunseen_combo_even * totalunseen_combo_odd
-                    totalunseen_combo_total *= totalunseen_combo_total
+                    # # print(f"Iteration {oc}:")
+                    # # print(f"  Lower Pairs Even: ({denom_pair} - {higherpairs})/({denom_pair})")
+                    # # print(f"  Lower Pairs Even: {lowerpairs_even}")
+                    # # print(f"  Lower Pairs Odd: {lowerpairs_odd}")
+                    # # print(f"  Lower Pairs Odd: (3 / {denom_pair})")
+                    # # print(f"  Lower Pairs Total: {lowerpairs_total}")
+                    #
+                    # totalunseen_combo_even = denom_pair / denom_pair if denom_pair % 2 == 0 else 1
+                    # totalunseen_combo_odd = (denom_pair / denom_pair) * (3 / denom_pair) if denom_pair % 2 != 0 else 1
+                    # totalunseen_combo_total = totalunseen_combo_even * totalunseen_combo_odd
+                    # totalunseen_combo_total *= totalunseen_combo_total
+                    totalunseen_combo_total = math.comb(len)
 
                     #print(f"  Total Unseen Combo Total: {totalunseen_combo_total}")
             if totalunseen_combo_total > 0:
@@ -122,36 +132,36 @@ def pair(rank_hand, suit_community_cards, rank_community_cards):
     elif pairs == 2:
         return '0% - Better Hand Available'
 
-# def two_pair(rank_hand, suit_community_cards, rank_community_cards):
-#     rank_board = rank_hand + rank_community_cards
-#     suit_board = suit_hand + suit_community_cards
-#     if any(rank_board.count(rank) >= 3 for rank in set(rank_board)):  # Checking for trips, quads
-#         return '0% - Better Hand Available'
-#     elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
-#         return '0% - Better Hand Available'
-#     elif len(rank_board) >= 5:  # Checking for Straight
-#         sort = sorted(rank_board)
-#         if any(
-#                 sort[i + 1] == sort[i] + 1 and
-#                 sort[i + 2] == sort[i] + 2 and
-#                 sort[i + 3] == sort[i] + 3 and
-#                 sort[i + 4] == sort[i] + 4
-#                 for i in range(len(rank_board) - 4)
-#         ):
-#             return '0% - Better Hand Available'
-#     pairs = 0
-#     for user_card in rank_hand:
-#         for cc_card in rank_community_cards:
-#             if user_card == cc_card:
-#                 pairs += 1
-#     if pairs == 2:
-#         high_rankin_hand = max(rank_hand)  # highest card in hand
-#         num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
-#         num_lowerCC = len(rank_community_cards) - num_higherCC
-#         lower2pairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
-#         two_pair = lower2pairs / total_combo
-#         return two_pair
-#
+def two_pair(rank_hand, suit_community_cards, rank_community_cards):
+    rank_board = rank_hand + rank_community_cards
+    suit_board = suit_hand + suit_community_cards
+    if any(rank_board.count(rank) >= 3 for rank in set(rank_board)):  # Checking for trips, quads
+        return '0% - Better Hand Available'
+    elif any(suit_board.count(card) >= 5 for card in suit_board):  # Checking for flushes
+        return '0% - Better Hand Available'
+    elif len(rank_board) >= 5:  # Checking for Straight
+        sort = sorted(rank_board)
+        if any(
+                sort[i + 1] == sort[i] + 1 and
+                sort[i + 2] == sort[i] + 2 and
+                sort[i + 3] == sort[i] + 3 and
+                sort[i + 4] == sort[i] + 4
+                for i in range(len(rank_board) - 4)
+        ):
+            return '0% - Better Hand Available'
+    pairs = 0
+    for user_card in rank_hand:
+        for cc_card in rank_community_cards:
+            if user_card == cc_card:
+                pairs += 1
+    if pairs == 2:
+        high_rankin_hand = max(rank_hand)  # highest card in hand
+        num_higherCC = sum(1 for rank in rank_community_cards if rank > high_rankin_hand)
+        num_lowerCC = len(rank_community_cards) - num_higherCC
+        lower2pairs = math.comb((lowerC_deck - num_lowerCC + num_higherCC), otherp_cards)
+        two_pair = lower2pairs / total_combo
+        return two_pair
+
 # def trips(rank_hand, suit_community_cards, rank_community_cards):
 #     rank_board = rank_hand + rank_community_cards
 #     suit_board = suit_hand + suit_community_cards
