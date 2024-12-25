@@ -195,29 +195,31 @@ def straight(rank_hand, suit_community_cards, rank_community_cards):
     for rank in rank_community_cards:
         community_card_ranks[rank] = "community"
     user_ranks = {}
-    for rank in user_ranks:
+    for rank in rank_hand:
         user_ranks[rank] = "user"
     rank_board = list(community_card_ranks.keys()) + list(user_ranks.keys())
+    #print(rank_board)
     if 13 in rank_board and {2, 3, 4, 5}.intersection(rank_board):
         adjusted_rank_board = [1 if rank == 13 else rank for rank in rank_board]
     else:
         adjusted_rank_board = rank_board
     sorted_board_rank = sorted(adjusted_rank_board)
+    #print(sorted_board_rank)
     for i in range(len(sorted_board_rank) - 4):
         if sorted_board_rank[i + 4] - sorted_board_rank[i] == 4:
             straight_cards = sorted_board_rank[i:i + 5]
-            highest_card = straight_cards[-1]
             highest_community_card = max([card for card in straight_cards if community_card_ranks.get(card, None) == "community"], default=None)
+            #print(highest_community_card)
             highest_user_card = max([card for card in straight_cards if user_ranks.get(card, None) == "user"], default = None)
+            #print(highest_user_card)
             if highest_user_card - highest_community_card == 2:
                 return 1
             if highest_user_card - highest_community_card == 1:
                 numhighercombo = math.comb(4,1)
                 straight_prob = ((1 - (numhighercombo / math.comb(len(deck), 2))) ** (int(num_players) - 1))
                 return straight_prob
-            elif highest_user_card - highest_community_card > 0:           # haven't considered aces yet
+            if highest_user_card - highest_community_card < 0:
                 numhighercombo = math.comb(4,1) ** 2
-                print(numhighercombo)
                 straight_prob = ((1 - (numhighercombo / math.comb(len(deck), 2))) ** (int(num_players) - 1))
                 return straight_prob
             if 13 in rank_board and {9, 10, 11, 12}.intersection(rank_board):
@@ -231,13 +233,17 @@ def flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
     suit_mapping = {}
     for i in range(len(suit_hand)):     # labeling cards as user/cc cards & put them in suit_mapping w/ an index
         suit = suit_hand[i]
+        print(suit)
         rank = rank_hand[i]
+        print(rank)
         if suit not in suit_mapping:
             suit_mapping[suit] = []
             suit_mapping[suit].append((rank, 'user'))
     for i in range(len(suit_community_cards)):
         suit = suit_community_cards[i]
+        print(suit)
         rank = rank_community_cards[i]
+        print(rank)
         if suit not in suit_mapping:
             suit_mapping[suit] = []
             suit_mapping[suit].append((rank, 'community'))
@@ -245,12 +251,18 @@ def flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
     for suit, cards in suit_mapping.items():
         if len(cards) >= 5:
             suit_flush = suit
+            print(suit, cards)
     if suit_flush:
         flush_cards = suit_mapping[suit_flush]
+        print(flush_cards)
         user_ranks = [rank for rank, source in flush_cards if source == 'user']
+        print(user_ranks)
         community_ranks = [rank for rank, source in flush_cards if source == 'community']
+        print(community_ranks)
         highest_hand_rank = max(user_ranks) if user_ranks else None
+        print(highest_hand_rank)
         highest_community_rank = max(community_ranks) if community_ranks else None
+        print(highest_community_rank)
         if highest_hand_rank or highest_community_rank == 13:
             return 1
         if highest_hand_rank < highest_community_rank:
@@ -263,8 +275,8 @@ def flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
             return flush_prob
 
 
-def full_house(rank_hand, suit_community_cards, rank_community_cards):
-    return full_house_prob
+# def full_house(rank_hand, suit_community_cards, rank_community_cards):
+#     return full_house_prob
 
 
 def quads(rank_hand, suit_community_cards, rank_community_cards):
@@ -290,10 +302,8 @@ def quads(rank_hand, suit_community_cards, rank_community_cards):
         return quads_prob
 
 
-def str_flush(rank_hand, suit_community_cards, rank_community_cards):
-    highercards =
-    str_flush_prob = ((1 - (highercards / math.comb(len(deck), 2))) ** (int(num_players) - 1))
-    return str_flush_prob
+# def str_flush(rank_hand, suit_community_cards, rank_community_cards):
+#     return str_flush_prob
 
 
 def roy_flush(rank_hand, suit_community_cards, rank_community_cards):
@@ -307,10 +317,10 @@ def evaluate_hand(rank_hand, suit_community_cards, rank_community_cards):
             "Two_pairs": two_pair(rank_hand, suit_community_cards, rank_community_cards),
             "Three_of_a_kind": trips(rank_hand, suit_community_cards, rank_community_cards),
             "Straight": straight(rank_hand, suit_community_cards, rank_community_cards),
-            "Flush": flush(rank_hand, suit_community_cards, rank_community_cards),
-            "Full_house": full_house(rank_hand, suit_community_cards, rank_community_cards),
+            "Flush": flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards),
+            # "Full_house": full_house(rank_hand, suit_community_cards, rank_community_cards),
             "Four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
-            "Straight_flush": str_flush(rank_hand, suit_community_cards, rank_community_cards),
+            # "Straight_flush": str_flush(rank_hand, suit_community_cards, rank_community_cards),
             "Royal_flush": roy_flush(rank_hand, suit_community_cards, rank_community_cards)
          }
 
