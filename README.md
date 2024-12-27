@@ -46,6 +46,7 @@ This tool is a work in progress and should not be relied upon for accurate decis
 
 
 Note to self (What I learned)
+
 -list comprehension
 
 -tuple unpacking
