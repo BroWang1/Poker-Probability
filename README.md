@@ -33,3 +33,16 @@ Use the results as a rough guide to assess your hand’s potential.
 
 Disclaimer
 This tool is a work in progress and should not be relied upon for accurate decision-making in high-stakes poker games. Use it for educational purposes and as a stepping stone for understanding poker probabilities.
+
+Note to self (What I learned)
+-list comprehension 
+-tuple unpacking
+-debugging w/ print
+-any()
+-Initialization (ex. var = None, var1 = 0, var2 = [], etc.)
+-importing from different .py files
+-branching 
+-manipulating index to find order
+-combining two dictionaries
+-function calling another function
+-.upper or .lower w/ .replace() & .split to clean answers
