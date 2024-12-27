@@ -27,6 +27,7 @@ How to Use
 4. Input the Turn
 5. Input the River
 6. Each turn will give you a probabilty of winning
+
 The program will calculate the probability of winning based on lower card combinations.
 Use the results as a rough guide to assess your hand’s potential.
 
