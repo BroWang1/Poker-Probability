@@ -2,6 +2,7 @@
 To Clone
 Open your terminal and navigate to the directory where you want to store the project.
 Run the following command to clone the repository:
+
      git clone https://github.com/BroWang1/Poker-Probability-Python.git
      cd Poker-Probability-Python
      
