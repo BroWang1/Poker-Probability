@@ -342,15 +342,15 @@ def full_house(suit_hand, rank_hand, suit_community_cards, rank_community_cards)
             rank_count[rank] += 1
         else:
             rank_count[rank] = 1
-        print(rank_count)
-        findtrip_house = [rank for rank,count in rank_count.items() if count >= 3]
-        findpair_house = [rank for rank,count in rank_count.items() if count >= 2]
+    #print(rank_count)
+    findtrip_house = [rank for rank,count in rank_count.items() if count >= 3]
+    findpair_house = [rank for rank,count in rank_count.items() if count >= 2]
+    if findtrip_house and findpair_house:
         findtrip_house.sort(reverse=True)
         findpair_house.sort(reverse=True)
-        if not findtrip_house or len(findpair_house) < 2:
-            return "No Full House"
+        #print(f'finding 3:{findtrip_house}finding 2:{findpair_house}')
+        #print(findpair_house)
         three_of_a_kind = findtrip_house[0] if findtrip_house else None
-        print(three_of_a_kind)
         two_of_a_kind = None
         for rank in findpair_house:
             if rank != three_of_a_kind:
@@ -358,24 +358,16 @@ def full_house(suit_hand, rank_hand, suit_community_cards, rank_community_cards)
                 break
         if not two_of_a_kind:
             return "No Full House"
-        community_card_ranks = {rank: "community" for rank in rank_community_cards}
-        print(community_card_ranks)
-        three_of_a_kind_contributors = []
-        two_of_a_kind_contributors = []
-        if three_of_a_kind:
-            three_of_a_kind_contributors = [card for card in rank_hand if card == three_of_a_kind]
-        if two_of_a_kind:
-            two_of_a_kind_contributors = [card for card in rank_hand if card == two_of_a_kind]
-        higher_than_three_of_a_kind = [rank for rank in rank_community_cards if rank > three_of_a_kind_contributors]
-        higher_than_pair = [rank for rank in rank_community_cards if rank > two_of_a_kind_contributors]
-        print(higher_than_three_of_a_kind)
-        print(higher_than_pair)
+        #print(f'two:{two_of_a_kind}three:{three_of_a_kind}')
+        higher_than_three_of_a_kind = [rank for rank in rank_community_cards if rank > three_of_a_kind]
+        higher_than_pair = [rank for rank in rank_community_cards if rank > two_of_a_kind]
+       # print(f'higher 3 :{higher_than_three_of_a_kind} higher 2:{higher_than_pair}')
         highernum3 = math.comb(3, 2) * len(higher_than_three_of_a_kind)
         highernum2 = math.comb(3, 1) * len(higher_than_pair)
-        print(highernum3)
-        print(highernum2)
+        #print(highernum3)
+        #print(highernum2)
         highernumcards = highernum3 * highernum2
-        print(highernumcards)
+        #print(highernumcards)
         full_house_prob = ((1 - (highernumcards / math.comb(len(deck), 2))) ** (int(num_players) - 1))
         return full_house_prob
 
@@ -407,13 +399,76 @@ def quads(rank_hand, suit_community_cards, rank_community_cards):
         return quads_prob   # It is not working right now so I need to fix this
 
 
-# def str_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
-#     return str_flush_prob
+def str_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
+    rank_board = rank_hand + rank_community_cards
+    suit_board = suit_hand + suit_community_cards
+    suit_mapping = {}
+    for i in range(len(suit_board)):  # labeling cards as user/cc cards & put them in suit_mapping w/ an index
+        suit = suit_board[i]
+        # print(suit)
+        rank = rank_board[i]
+        # print(rank)
+        if suit not in suit_mapping:
+            suit_mapping[suit] = []
+        suit_mapping[suit].append(rank)
+        royal_flush_rank = [9, 10, 11, 12, 13]
+        for suit, ranks in suit_mapping.items():
+            if len(ranks) >= 5:
+                if all(rank_in_board in rank_board for rank_in_board in royal_flush_rank):
+                    return '0% - Better Hand Available'
+                else:
+                    community_card_ranks = {}  # To know where each card is coming from
+                    for rank in rank_community_cards:
+                        community_card_ranks[rank] = "community"
+                    user_ranks = {}
+                    for rank in rank_hand:
+                        user_ranks[rank] = "user"
+                    rank_board = list(community_card_ranks.keys()) + list(user_ranks.keys())
+                    # print(rank_board)
+                    if 13 in rank_board and {2, 3, 4, 5}.intersection(rank_board):
+                        adjusted_rank_board = [0 if rank == 13 else rank for rank in rank_board]
+                    else:
+                        adjusted_rank_board = rank_board
+                    sorted_board_rank = sorted(adjusted_rank_board)
+                    for i in range(len(sorted_board_rank) - 4):
+                        if sorted_board_rank[i + 4] - sorted_board_rank[i] == 4:
+                            straight_cards = sorted_board_rank[i:i + 5]
+                            highest_community_card = max([card for card in straight_cards if
+                                                          community_card_ranks.get(card, None) == "community"],
+                                                         default=None)
+                            # print(highest_community_card)
+                            highest_user_card = max(
+                                [card for card in straight_cards if user_ranks.get(card, None) == "user"], default=None)
+                            # print(highest_user_card)
+                            if highest_user_card - highest_community_card == 2:
+                                return 1
+                            if highest_user_card - highest_community_card == 1:
+                                numhighercombo = math.comb(1, 1)
+                                str_flush_prob = ((1 - (numhighercombo / math.comb(len(deck), 2))) ** (int(num_players) - 1))
+                                return str_flush_prob
+                            if highest_user_card - highest_community_card < 0:
+                                numhighercombo = math.comb(2, 1) ** 2
+                                str_flush_prob = ((1 - (numhighercombo / math.comb(len(deck), 2))) ** (int(num_players) - 1))
+                                return str_flush_prob
 
 
 def roy_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
-    return 1
-
+    rank_board = rank_hand + rank_community_cards
+    suit_board = suit_hand + suit_community_cards
+    suit_mapping = {}
+    for i in range(len(suit_board)):     # labeling cards as user/cc cards & put them in suit_mapping w/ an index
+        suit = suit_board[i]
+        #print(suit)
+        rank = rank_board[i]
+        #print(rank)
+        if suit not in suit_mapping:
+            suit_mapping[suit] = []
+        suit_mapping[suit].append(rank)
+        royal_flush_rank = [9, 10, 11, 12, 13]
+        for suit, ranks in suit_mapping.items():
+            if len(ranks) >= 5:
+                if all(rank_in_board in rank_board for rank_in_board in royal_flush_rank):
+                    return 1
 
 def evaluate_hand(suit_hand, rank_hand, suit_community_cards, rank_community_cards):
     return {
@@ -425,7 +480,7 @@ def evaluate_hand(suit_hand, rank_hand, suit_community_cards, rank_community_car
             "Flush": flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards),
             "Full_house": full_house(suit_hand, rank_hand, suit_community_cards, rank_community_cards),
             "Four_of_a_kind": quads(rank_hand, suit_community_cards, rank_community_cards),
-            # "Straight_flush": str_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards):,
+            "Straight_flush": str_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards),
             "Royal_flush": roy_flush(suit_hand, rank_hand, suit_community_cards, rank_community_cards)
          }
 
