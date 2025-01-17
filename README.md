@@ -1,14 +1,15 @@
 # Poker-Probability-Python
+     
+# Overview
+___
+This program is a rudimentary tool that estimates the probability of winning a poker game based on the combinations of cards lower than your hand. While it does not take into account all possible scenarios, it provides a rough estimation to help you gauge the strength of your hand during gameplay. Note these rules are made by my research online and intuition of the game.
+
 To Clone
 Open your terminal and navigate to the directory where you want to store the project.
 Run the following command to clone the repository:
 
      git clone https://github.com/BroWang1/Poker-Probability-Python.git
      cd Poker-Probability-Python
-     
-# Overview
-___
-This program is a rudimentary tool that estimates the probability of winning a poker game based on the combinations of cards lower than your hand. While it does not take into account all possible scenarios, it provides a rough estimation to help you gauge the strength of your hand during gameplay. Note these rules are made by my research online and intuition of the game.
 
 # Current Functionality
 ___
