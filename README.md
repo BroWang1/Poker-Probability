@@ -43,36 +43,17 @@ This tool is a work in progress and should not be relied upon for accurate decis
 
 
 
-
-
-
-
-
-
-
-
-
 # Note to self (What I learned)
 ___
 
--list comprehension
-
--tuple unpacking
-
--debugging w/ print
-
--any()
-
--Initialization (ex. var = None, var1 = 0, var2 = [], etc.)
-
--importing from different .py files
-
--branching 
-
--manipulating index to find order
-
--combining two dictionaries
-
--function calling another function
-
--.upper or .lower w/ .replace() & .split to clean answers
+-list comprehension  
+-tuple unpacking  
+-debugging w/ print  
+-any()  
+-Initialization (ex. var = None, var1 = 0, var2 = [], etc.)  
+-importing from different .py files  
+-branching   
+-manipulating index to find order  
+-combining two dictionaries  
+-function calling another function  
+-.upper or .lower w/ .replace() & .split to clean answers  
